@@ -30,9 +30,20 @@ app.get('/', (req, res) => {
     console.log('[INFO] Acceso a la ruta principal');
     res.json({
         message: 'API de Instagram Automation',
+        version: '1.0.0',
+        environment: process.env.NODE_ENV || 'development',
         endpoints: {
             '/api/process-instagram': 'POST - Procesar datos de Instagram'
         }
+    });
+});
+
+// Ruta de health check para Render
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
     });
 });
 
@@ -108,7 +119,7 @@ Respondé SIEMPRE en este formato, sin ninguna explicación adicional.
 
         // Llamada a OpenAI
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini", // Usando gpt-4o-mini (anteriormente gpt-4.1-nano)
+            model: "gpt-4o-mini",
             messages: [
                 {
                     role: "system",
@@ -173,20 +184,22 @@ app.use((err, req, res, next) => {
 });
 
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] 🚀 Servidor iniciado`);
     console.log(`[${timestamp}] 📍 Puerto: ${PORT}`);
-    console.log(`[${timestamp}] 🌐 URL: http://localhost:${PORT}`);
-    console.log(`[${timestamp}]  API Endpoint: http://localhost:${PORT}/api/process-instagram`);
-    console.log(`[${timestamp}]  Estado: Listo para recibir peticiones`);
+    console.log(`[${timestamp}] 🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`[${timestamp}] 🏠 Host: 0.0.0.0`);
+    console.log(`[${timestamp}] 📊 Health Check: /health`);
+    console.log(`[${timestamp}] 📍 API Endpoint: /api/process-instagram`);
+    console.log(`[${timestamp}] ✅ Estado: Listo para recibir peticiones`);
 
     // Verificar configuración de OpenAI
     if (process.env.OPENAI_API_KEY) {
         console.log(`[${timestamp}] ✅ OpenAI API Key configurada`);
     } else {
         console.log(`[${timestamp}] ⚠️ ADVERTENCIA: OpenAI API Key no configurada`);
-        console.log(`[${timestamp}] 💡 Agrega OPENAI_API_KEY en tu archivo .env`);
+        console.log(`[${timestamp}] 💡 Configura OPENAI_API_KEY en las variables de entorno de Render`);
     }
 });
 
